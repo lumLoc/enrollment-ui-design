@@ -1,6 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-
+// PHILIPPINE CITIES AND PROVINCES DATA
+const philippineLocations = {
+  'Metro Manila': ['Manila', 'Quezon City', 'Caloocan', 'Las Piñas', 'Makati', 'Malabon', 'Mandaluyong', 'Marikina', 'Muntinlupa', 'Navotas', 'Parañaque', 'Pasay', 'Pasig', 'Pateros', 'San Juan', 'Taguig', 'Valenzuela'],
+  'Cebu': ['Cebu City', 'Mandaue', 'Lapu-Lapu', 'Talisay', 'Danao', 'Toledo', 'Carcar', 'Naga'],
+  'Davao del Sur': ['Davao City', 'Digos', 'Magsaysay', 'Matanao', 'Padada', 'Santa Cruz'],
+  'Laguna': ['Calamba', 'Santa Rosa', 'Biñan', 'San Pedro', 'Cabuyao', 'Sta. Cruz', 'Los Baños'],
+  'Cavite': ['Bacoor', 'Imus', 'Dasmariñas', 'General Trias', 'Trece Martires', 'Tagaytay'],
+  'Bulacan': ['Malolos', 'Meycauayan', 'San Jose del Monte', 'Santa Maria', 'Baliuag'],
+  'Pampanga': ['Angeles', 'San Fernando', 'Mabalacat', 'Apalit', 'Arayat'],
+  'Batangas': ['Batangas City', 'Lipa', 'Tanauan', 'Sto. Tomas', 'Nasugbu'],
+  'Rizal': ['Antipolo', 'Cainta', 'Taytay', 'Binangonan', 'Angono', 'Rodriguez'],
+  'Iloilo': ['Iloilo City', 'Passi', 'Oton', 'Santa Barbara', 'Leganes'],
+  'Negros Occidental': ['Bacolod', 'Bago', 'La Carlota', 'San Carlos', 'Silay', 'Talisay'],
+  'Zamboanga del Sur': ['Zamboanga City', 'Pagadian', 'Dipolog'],
+  'Cagayan de Oro': ['Cagayan de Oro City'],
+  'Baguio': ['Baguio City'],
+  'Benguet': ['La Trinidad', 'Itogon', 'Tuba', 'Sablan'],
+  'Ilocos Norte': ['Laoag', 'Batac', 'San Nicolas'],
+  'Ilocos Sur': ['Vigan', 'Candon', 'Bantay'],
+  'Pangasinan': ['Dagupan', 'San Carlos', 'Urdaneta', 'Alaminos', 'Lingayen'],
+  'Quezon': ['Lucena', 'Tayabas', 'Antipolo', 'Candelaria', 'Sariaya'],
+  'Leyte': ['Tacloban', 'Ormoc', 'Baybay', 'Palo'],
+  'Negros Oriental': ['Dumaguete', 'Bais', 'Bayawan', 'Guihulngan'],
+  'Bohol': ['Tagbilaran', 'Tubigon', 'Carmen', 'Loon'],
+  'Camarines Sur': ['Naga', 'Iriga', 'Pili', 'Legazpi'],
+  'Albay': ['Legazpi', 'Ligao', 'Tabaco', 'Guinobatan']
+};
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,25 +50,61 @@ function App() {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  const departments = {
-    cea: ['BS Architecture', 'BS Chemical Engineering', 'BS Civil Engineering', 
-          'BS Computer Engineering', 'BS Electrical Engineering', 'BS Electronics Engineering', 
-          'BS Industrial Engineering', 'BS Mechanical Engineering'],
-    ccs: ['BS Computer Science', 'BS Data Science and Analytics', 
-          'BS Entertainment and Multimedia Computing', 'BS Information Technology'],
-    cbe: ['BS Accountancy', 'BS Accounting Information System', 
-          'BS Business Administration - Financial Management',
-          'BS Business Administration - Human Resource Management',
-          'BS Business Administration - Logistics and Supply Chain Management',
-          'BS Business Administration - Marketing Management'],
-    arts: ['Bachelor of Arts in English Language', 'Bachelor of Arts in Political Science']
+  // COMPLETE PROGRAM DATA INCLUDING GRADUATE
+  const programsData = {
+    undergraduate: {
+      cea: ['BS Architecture', 'BS Chemical Engineering', 'BS Civil Engineering', 
+            'BS Computer Engineering', 'BS Electrical Engineering', 'BS Electronics Engineering', 
+            'BS Industrial Engineering', 'BS Mechanical Engineering'],
+      ccs: ['BS Computer Science', 'BS Data Science and Analytics', 
+            'BS Entertainment and Multimedia Computing', 'BS Information Technology'],
+      cbe: ['BS Accountancy', 'BS Accounting Information System', 
+            'BS Business Administration - Financial Management',
+            'BS Business Administration - Human Resource Management',
+            'BS Business Administration - Logistics and Supply Chain Management',
+            'BS Business Administration - Marketing Management'],
+      arts: ['Bachelor of Arts in English Language', 'Bachelor of Arts in Political Science']
+    },
+    graduate: {
+      doctorate: [
+        'Doctor in Information Technology',
+        'Doctor of Engineering with Specialization in Computer Engineering',
+        'Doctor of Philosophy in Computer Science'
+      ],
+      masters: [
+        'Master in Information Systems',
+        'Master in Information Technology',
+        'Master in Logistics and Supply Chain Management',
+        'Master of Engineering with Specialization in Civil Engineering',
+        'Master of Engineering with Specialization in Computer Engineering',
+        'Master of Engineering with Specialization in Electrical Engineering',
+        'Master of Engineering with Specialization in Electronics Engineering',
+        'Master of Engineering with Specialization in Industrial Engineering',
+        'Master of Engineering with Specialization in Mechanical Engineering',
+        'Master of Science in Computer Science'
+      ]
+    }
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+  const { name, value } = e.target;
+  
+  // STRICT VALIDATION FOR MOBILE - NUMBERS ONLY, 11 digits
+  if (name === 'mobile') {
+    const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 11);
+    setFormData(prev => ({ ...prev, [name]: numbersOnly }));
+  }
+  // STRICT VALIDATION FOR LANDLINE - NUMBERS ONLY, max 10 digits
+  else if (name === 'landline') {
+    const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+    setFormData(prev => ({ ...prev, [name]: numbersOnly }));
+  }
+  else {
     setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
-  };
+  }
+  
+  if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+};
 
   const handleBlur = (e) => {
     const { name } = e.target;
@@ -52,25 +114,40 @@ function App() {
 
   const validateField = (name, value) => {
     let error = '';
-    if (!value && ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality',
+    
+    // Required fields validation
+    const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality',
                    'email', 'mobile', 'street', 'barangay', 'city', 'province', 'zipCode',
                    'gsName', 'gsYear', 'gsAddress', 'jhsName', 'jhsYear', 'jhsAddress',
                    'shsName', 'shsYear', 'shsAverage', 'shsAddress',
-                   'level', 'semester', 'campus', 'department', 'program'].includes(name)) {
+                   'level', 'semester', 'campus', 'department', 'program'];
+    
+    if (!value && requiredFields.includes(name)) {
       error = 'This field is required';
     }
+    
+    // Email validation
     if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       error = 'Please enter a valid email';
     }
-    if (name === 'mobile' && value && !/^09\d{9}$/.test(value)) {
-      error = 'Format: 09XXXXXXXXX';
+    
+    // STRICT MOBILE VALIDATION - exactly 11 digits, starts with 09
+    if (name === 'mobile' && value) {
+      if (!/^09\d{9}$/.test(value)) {
+        error = 'Must be 11 digits starting with 09 (e.g., 09123456789)';
+      }
     }
+    
+    // Zip code validation - exactly 4 digits
     if (name === 'zipCode' && value && !/^\d{4}$/.test(value)) {
-      error = '4 digits required';
+      error = 'Must be exactly 4 digits';
     }
+    
+    // Grade average validation
     if (name === 'shsAverage' && value && (value < 75 || value > 100)) {
-      error = 'Must be 75-100';
+      error = 'Must be between 75-100';
     }
+    
     setErrors(prev => ({ ...prev, [name]: error }));
     return !error;
   };
@@ -103,6 +180,17 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // CLEAR SELECTION FUNCTION
+  const clearSelection = (field) => {
+    setFormData(prev => ({ ...prev, [field]: '' }));
+    if (field === 'level') {
+      setFormData(prev => ({ ...prev, level: '', department: '', program: '' }));
+    }
+    if (field === 'department') {
+      setFormData(prev => ({ ...prev, department: '', program: '' }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateStep(4)) return;
@@ -123,12 +211,15 @@ function App() {
     return (
       <div className="success-container">
         <div className="success-card">
-          <div className="success-icon">🎉</div>
-          <h2>Registration Successful!</h2>
-          <p>Welcome to ADEi University, {formData.firstName}!</p>
-          <p className="success-detail">Your application for {formData.program} has been received.</p>
+          <div className="success-icon">✓</div>
+          <h2>Application Submitted</h2>
+          <p className="student-name">{formData.firstName} {formData.lastName}</p>
+          <p className="success-detail">
+            Your application for <strong>{formData.program}</strong> has been received.<br/>
+            Student ID will be sent to {formData.email}
+          </p>
           <button onClick={() => window.location.reload()} className="btn-primary">
-            Register Another Student
+            Submit New Application
           </button>
         </div>
       </div>
@@ -136,321 +227,570 @@ function App() {
   }
 
   return (
-    <div className="app-container">
-      <div className="animated-bg"></div>
-      
-      <div className="main-content">
-        <header className="glass-header">
-          <div className="logo-section">
-            <div className="logo">ADEi</div>
-            <div className="uni-info">
-              <h1>University Digital Registrar</h1>
-              <p>Student Enrollment Portal 2024-2025</p>
+    <div className="university-portal">
+      {/* HEADER */}
+      <header className="portal-header">
+        <div className="header-content">
+          <div className="university-brand">
+            <div className="seal">T.I.P.</div>
+            <div className="brand-text">
+              <h1>TECHNOLOGICAL INSTITUTE OF THE PHILIPPINES</h1>
+              <p>Office of the University Registrar</p>
             </div>
           </div>
-          <div className="progress-ring">
-            <svg viewBox="0 0 36 36">
-              <path className="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              <path className="ring-progress" strokeDasharray={`${getProgress()}, 100`} d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-            </svg>
-            <span className="progress-text">{getProgress()}%</span>
+          <div className="header-meta">
+            <span className="academic-year">A.Y. 2024-2025</span>
+            <span className="term">Enrollment Period</span>
           </div>
-        </header>
-
-        <div className="step-indicator">
-          {[1, 2, 3, 4].map(step => (
-            <div key={step} className={`step ${currentStep === step ? 'active' : ''} ${currentStep > step ? 'completed' : ''}`}>
-              <div className="step-number">{currentStep > step ? '✓' : step}</div>
-              <span className="step-label">
-                {step === 1 && 'Personal'}
-                {step === 2 && 'Contact'}
-                {step === 3 && 'Academic'}
-                {step === 4 && 'Enrollment'}
-              </span>
-            </div>
-          ))}
         </div>
+      </header>
 
-        <form onSubmit={handleSubmit} className="enrollment-form">
-          {/* STEP 1: PERSONAL INFO */}
+      {/* PROGRESS BAR */}
+      <div className="progress-container">
+        <div className="progress-bar">
+          <div className="progress-fill" style={{ width: `${getProgress()}%` }}></div>
+        </div>
+        <span className="progress-text">{getProgress()}% Complete</span>
+      </div>
+
+      {/* STEP NAVIGATION */}
+      <div className="step-nav">
+        {[
+          { num: 1, label: 'Personal Info' },
+          { num: 2, label: 'Contact' },
+          { num: 3, label: 'Academic' },
+          { num: 4, label: 'Enrollment' }
+        ].map((step) => (
+          <button
+            key={step.num}
+            className={`step-btn ${currentStep === step.num ? 'active' : ''} ${currentStep > step.num ? 'completed' : ''}`}
+            onClick={() => currentStep > step.num && setCurrentStep(step.num)}
+          >
+            <span className="step-num">{currentStep > step.num ? '✓' : step.num}</span>
+            <span className="step-label">{step.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* MAIN FORM */}
+      <main className="form-container">
+        <form onSubmit={handleSubmit}>
+          
+          {/* STEP 1: PERSONAL INFORMATION */}
           {currentStep === 1 && (
-            <div className="form-step animate-in">
-              <h2 className="section-title">👤 Personal Information</h2>
+            <section className="form-section">
+              <h2 className="section-title">Personal Information</h2>
               
-              <div className="form-grid">
-                <div className={`input-group ${touched.firstName && errors.firstName ? 'error' : ''}`}>
-                  <input type="text" name="firstName" value={formData.firstName} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>First Name *</label>
-                  <span className="input-highlight"></span>
-                  {touched.firstName && errors.firstName && <span className="error-msg">{errors.firstName}</span>}
+              <div className="form-row four-cols">
+                <div className={`field-group ${touched.firstName && errors.firstName ? 'error' : ''}`}>
+                  <label>First Name <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    name="firstName" 
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Juan"
+                  />
+                  {touched.firstName && errors.firstName && <span className="error-text">{errors.firstName}</span>}
                 </div>
 
-                <div className="input-group">
-                  <input type="text" name="middleName" value={formData.middleName} onChange={handleChange} placeholder=" " />
+                <div className="field-group">
                   <label>Middle Name</label>
-                  <span className="input-highlight"></span>
+                  <input 
+                    type="text" 
+                    name="middleName" 
+                    value={formData.middleName}
+                    onChange={handleChange}
+                    placeholder="Dela Cruz"
+                  />
                 </div>
 
-                <div className={`input-group ${touched.lastName && errors.lastName ? 'error' : ''}`}>
-                  <input type="text" name="lastName" value={formData.lastName} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>Last Name *</label>
-                  <span className="input-highlight"></span>
-                  {touched.lastName && errors.lastName && <span className="error-msg">{errors.lastName}</span>}
+                <div className={`field-group ${touched.lastName && errors.lastName ? 'error' : ''}`}>
+                  <label>Last Name <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    name="lastName" 
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Santos"
+                  />
+                  {touched.lastName && errors.lastName && <span className="error-text">{errors.lastName}</span>}
                 </div>
 
-                <div className="input-group">
-                  <input type="text" name="suffix" value={formData.suffix} onChange={handleChange} placeholder=" " />
-                  <label>Suffix (Jr., Sr., III)</label>
-                  <span className="input-highlight"></span>
+                <div className="field-group">
+                  <label>Suffix</label>
+                  <input 
+                    type="text" 
+                    name="suffix" 
+                    value={formData.suffix}
+                    onChange={handleChange}
+                    placeholder="Jr., Sr., III"
+                  />
                 </div>
               </div>
 
-              <div className="form-grid three-cols">
-                <div className={`input-group ${touched.dateOfBirth && errors.dateOfBirth ? 'error' : ''}`}>
-                  <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} onBlur={handleBlur} required max="2006-12-31" min="1990-01-01" />
-                  <label className="static-label">Date of Birth *</label>
-                  {touched.dateOfBirth && errors.dateOfBirth && <span className="error-msg">{errors.dateOfBirth}</span>}
+              <div className="form-row three-cols">
+                <div className={`field-group ${touched.dateOfBirth && errors.dateOfBirth ? 'error' : ''}`}>
+                  <label>Date of Birth <span className="required">*</span></label>
+                  <input 
+                    type="date" 
+                    name="dateOfBirth" 
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    max="2006-12-31"
+                    min="1990-01-01"
+                  />
+                  {touched.dateOfBirth && errors.dateOfBirth && <span className="error-text">{errors.dateOfBirth}</span>}
                 </div>
 
-                <div className={`input-group select-group ${touched.gender && errors.gender ? 'error' : ''}`}>
-                  <select name="gender" value={formData.gender} onChange={handleChange} onBlur={handleBlur} required>
-                    <option value=""></option>
+                <div className={`field-group ${touched.gender && errors.gender ? 'error' : ''}`}>
+                  <label>Gender <span className="required">*</span></label>
+                  <select 
+                    name="gender" 
+                    value={formData.gender}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  >
+                    <option value="">Select</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="non-binary">Non-binary</option>
                   </select>
-                  <label className="static-label">Gender *</label>
-                  {touched.gender && errors.gender && <span className="error-msg">{errors.gender}</span>}
+                  {touched.gender && errors.gender && <span className="error-text">{errors.gender}</span>}
                 </div>
 
-                <div className={`input-group select-group ${touched.nationality && errors.nationality ? 'error' : ''}`}>
-                  <select name="nationality" value={formData.nationality} onChange={handleChange} onBlur={handleBlur} required>
-                    <option value=""></option>
+                <div className={`field-group ${touched.nationality && errors.nationality ? 'error' : ''}`}>
+                  <label>Nationality <span className="required">*</span></label>
+                  <select 
+                    name="nationality" 
+                    value={formData.nationality}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  >
+                    <option value="">Select</option>
                     <option value="filipino">Filipino</option>
                     <option value="american">American</option>
                     <option value="chinese">Chinese</option>
-                    <option value="others">Others</option>
+                    <option value="korean">Korean</option>
+                    <option value="japanese">Japanese</option>
+                    <option value="other">Other</option>
                   </select>
-                  <label className="static-label">Nationality *</label>
-                  {touched.nationality && errors.nationality && <span className="error-msg">{errors.nationality}</span>}
+                  {touched.nationality && errors.nationality && <span className="error-text">{errors.nationality}</span>}
                 </div>
               </div>
 
-              <div className="input-group">
-                <input type="text" name="religion" value={formData.religion} onChange={handleChange} placeholder=" " />
-                <label>Religion</label>
-                <span className="input-highlight"></span>
+              <div className="form-row">
+                <div className="field-group">
+                  <label>Religion</label>
+                  <input 
+                    type="text" 
+                    name="religion" 
+                    value={formData.religion}
+                    onChange={handleChange}
+                    placeholder="Roman Catholic, Islam, Protestant, etc."
+                  />
+                </div>
               </div>
-            </div>
+            </section>
           )}
 
-          {/* STEP 2: CONTACT */}
+          {/* STEP 2: CONTACT DETAILS */}
           {currentStep === 2 && (
-            <div className="form-step animate-in">
-              <h2 className="section-title">📞 Contact Details</h2>
+            <section className="form-section">
+              <h2 className="section-title">Contact Details</h2>
               
-              <div className="form-grid three-cols">
-                <div className={`input-group ${touched.email && errors.email ? 'error' : ''}`}>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>Email Address *</label>
-                  <span className="input-highlight"></span>
-                  {touched.email && errors.email && <span className="error-msg">{errors.email}</span>}
+              <div className="form-row three-cols">
+                <div className={`field-group ${touched.email && errors.email ? 'error' : ''}`}>
+                  <label>Email Address <span className="required">*</span></label>
+                  <input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="student@email.com"
+                  />
+                  {touched.email && errors.email && <span className="error-text">{errors.email}</span>}
                 </div>
 
-                <div className={`input-group ${touched.mobile && errors.mobile ? 'error' : ''}`}>
-                  <input type="tel" name="mobile" value={formData.mobile} onChange={handleChange} onBlur={handleBlur} required placeholder=" " maxLength="11" />
-                  <label>Mobile Number *</label>
-                  <span className="input-highlight"></span>
-                  {touched.mobile && errors.mobile && <span className="error-msg">{errors.mobile}</span>}
+                <div className={`field-group ${touched.mobile && errors.mobile ? 'error' : ''}`}>
+                  <label>Mobile Number <span className="required">*</span></label>
+                  <input 
+                    type="tel" 
+                    name="mobile" 
+                    value={formData.mobile}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="09123456789"
+                    maxLength="11"
+                  />
+                  <small className="field-hint">11 digits, numbers only</small>
+                  {touched.mobile && errors.mobile && <span className="error-text">{errors.mobile}</span>}
                 </div>
 
-                <div className="input-group">
-                  <input type="tel" name="landline" value={formData.landline} onChange={handleChange} placeholder=" " />
+                <div className="field-group">
                   <label>Landline</label>
-                  <span className="input-highlight"></span>
+                  <input 
+                    type="tel" 
+                    name="landline" 
+                    value={formData.landline}
+                    onChange={handleChange}
+                    placeholder="0271234567"
+                    maxLength="10"
+                  />
+                  <small className="field-hint">Max 10 digits, numbers only</small>
                 </div>
-              </div>
 
               <h3 className="subsection-title">Home Address</h3>
               
-              <div className="form-grid">
-                <div className={`input-group ${touched.street && errors.street ? 'error' : ''}`}>
-                  <input type="text" name="street" value={formData.street} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>Street *</label>
-                  <span className="input-highlight"></span>
-                  {touched.street && errors.street && <span className="error-msg">{errors.street}</span>}
+              <div className="form-row two-cols">
+  <div className={`field-group ${touched.province && errors.province ? 'error' : ''}`}>
+    <label>Province <span className="required">*</span></label>
+    <select 
+      name="province" 
+      value={formData.province}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      required
+    >
+      <option value="">Select Province</option>
+      {Object.keys(philippineLocations).map(prov => (
+        <option key={prov} value={prov}>{prov}</option>
+      ))}
+    </select>
+    {touched.province && errors.province && <span className="error-text">{errors.province}</span>}
+  </div>
+
+  <div className={`field-group ${touched.city && errors.city ? 'error' : ''}`}>
+    <label>City <span className="required">*</span></label>
+    <select 
+      name="city" 
+      value={formData.city}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      required
+      disabled={!formData.province}
+    >
+      <option value="">
+        {formData.province ? 'Select City' : 'Select Province First'}
+      </option>
+      {formData.province && philippineLocations[formData.province]?.map(city => (
+        <option key={city} value={city}>{city}</option>
+      ))}
+    </select>
+    {touched.city && errors.city && <span className="error-text">{errors.city}</span>}
+  </div>
+</div>
+
+              <div className="form-row three-cols">
+                <div className={`field-group ${touched.city && errors.city ? 'error' : ''}`}>
+                  <label>City <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    name="city" 
+                    value={formData.city}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Manila"
+                  />
+                  {touched.city && errors.city && <span className="error-text">{errors.city}</span>}
                 </div>
 
-                <div className={`input-group ${touched.barangay && errors.barangay ? 'error' : ''}`}>
-                  <input type="text" name="barangay" value={formData.barangay} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>Barangay *</label>
-                  <span className="input-highlight"></span>
-                  {touched.barangay && errors.barangay && <span className="error-msg">{errors.barangay}</span>}
+                <div className={`field-group ${touched.province && errors.province ? 'error' : ''}`}>
+                  <label>Province <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    name="province" 
+                    value={formData.province}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Metro Manila"
+                  />
+                  {touched.province && errors.province && <span className="error-text">{errors.province}</span>}
                 </div>
 
-                <div className={`input-group ${touched.city && errors.city ? 'error' : ''}`}>
-                  <input type="text" name="city" value={formData.city} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>City *</label>
-                  <span className="input-highlight"></span>
-                  {touched.city && errors.city && <span className="error-msg">{errors.city}</span>}
-                </div>
-
-                <div className={`input-group ${touched.province && errors.province ? 'error' : ''}`}>
-                  <input type="text" name="province" value={formData.province} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                  <label>Province *</label>
-                  <span className="input-highlight"></span>
-                  {touched.province && errors.province && <span className="error-msg">{errors.province}</span>}
+                <div className={`field-group ${touched.zipCode && errors.zipCode ? 'error' : ''}`}>
+                  <label>Zip Code <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    name="zipCode" 
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="1000"
+                    maxLength="4"
+                  />
+                  {touched.zipCode && errors.zipCode && <span className="error-text">{errors.zipCode}</span>}
                 </div>
               </div>
-
-              <div className={`input-group half-width ${touched.zipCode && errors.zipCode ? 'error' : ''}`}>
-                <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} onBlur={handleBlur} required placeholder=" " maxLength="4" />
-                <label>Zip Code *</label>
-                <span className="input-highlight"></span>
-                {touched.zipCode && errors.zipCode && <span className="error-msg">{errors.zipCode}</span>}
-              </div>
-            </div>
+            </section>
           )}
 
-          {/* STEP 3: ACADEMIC */}
+          {/* STEP 3: ACADEMIC HISTORY */}
           {currentStep === 3 && (
-            <div className="form-step animate-in">
-              <h2 className="section-title">📚 Academic History</h2>
+            <section className="form-section">
+              <h2 className="section-title">Academic History</h2>
               
-              {['Grade School', 'Junior High School', 'Senior High School'].map((level, idx) => {
-                const prefix = idx === 0 ? 'gs' : idx === 1 ? 'jhs' : 'shs';
-                return (
-                  <div key={prefix} className="academic-card">
-                    <h3>{level}</h3>
-                    <div className="form-grid">
-                      <div className={`input-group ${touched[`${prefix}Name`] && errors[`${prefix}Name`] ? 'error' : ''}`}>
-                        <input type="text" name={`${prefix}Name`} value={formData[`${prefix}Name`]} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                        <label>School Name *</label>
-                        <span className="input-highlight"></span>
-                      </div>
-                      
-                      <div className={`input-group small ${touched[`${prefix}Year`] && errors[`${prefix}Year`] ? 'error' : ''}`}>
-                        <input type="number" name={`${prefix}Year`} value={formData[`${prefix}Year`]} onChange={handleChange} onBlur={handleBlur} required min="2000" max="2024" placeholder=" " />
-                        <label>Year *</label>
-                        <span className="input-highlight"></span>
-                      </div>
-
-                      {prefix === 'shs' && (
-                        <div className={`input-group small ${touched.shsAverage && errors.shsAverage ? 'error' : ''}`}>
-                          <input type="number" name="shsAverage" value={formData.shsAverage} onChange={handleChange} onBlur={handleBlur} required min="75" max="100" step="0.01" placeholder=" " />
-                          <label>Average *</label>
-                          <span className="input-highlight"></span>
-                        </div>
-                      )}
+              {[
+                { key: 'gs', title: 'Grade School', yearLabel: 'Year Graduated' },
+                { key: 'jhs', title: 'Junior High School', yearLabel: 'Year Graduated' },
+                { key: 'shs', title: 'Senior High School', yearLabel: 'Year Graduated', showAverage: true }
+              ].map((level) => (
+                <div key={level.key} className="academic-block">
+                  <h3>{level.title}</h3>
+                  <div className="form-row two-cols">
+                    <div className={`field-group ${touched[`${level.key}Name`] && errors[`${level.key}Name`] ? 'error' : ''}`}>
+                      <label>School Name <span className="required">*</span></label>
+                      <input 
+                        type="text" 
+                        name={`${level.key}Name`} 
+                        value={formData[`${level.key}Name`]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                      />
                     </div>
-                    
-                    <div className={`input-group ${touched[`${prefix}Address`] && errors[`${prefix}Address`] ? 'error' : ''}`}>
-                      <input type="text" name={`${prefix}Address`} value={formData[`${prefix}Address`]} onChange={handleChange} onBlur={handleBlur} required placeholder=" " />
-                      <label>School Address *</label>
-                      <span className="input-highlight"></span>
+                    <div className={`field-group ${touched[`${level.key}Year`] && errors[`${level.key}Year`] ? 'error' : ''}`}>
+                      <label>{level.yearLabel} <span className="required">*</span></label>
+                      <input 
+                        type="number" 
+                        name={`${level.key}Year`} 
+                        value={formData[`${level.key}Year`]}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        min="2000" 
+                        max="2024"
+                      />
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                  
+                  {level.showAverage && (
+                    <div className="form-row">
+                      <div className={`field-group narrow ${touched.shsAverage && errors.shsAverage ? 'error' : ''}`}>
+                        <label>Grade Average <span className="required">*</span></label>
+                        <input 
+                          type="number" 
+                          name="shsAverage" 
+                          value={formData.shsAverage}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          min="75" 
+                          max="100" 
+                          step="0.01"
+                          placeholder="90.00"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className={`field-group ${touched[`${level.key}Address`] && errors[`${level.key}Address`] ? 'error' : ''}`}>
+                    <label>School Address <span className="required">*</span></label>
+                    <input 
+                      type="text" 
+                      name={`${level.key}Address`} 
+                      value={formData[`${level.key}Address`]}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    />
+                  </div>
+                </div>
+              ))}
+            </section>
           )}
 
-          {/* STEP 4: ENROLLMENT */}
+          {/* STEP 4: ENROLLMENT CHOICES */}
           {currentStep === 4 && (
-            <div className="form-step animate-in">
-              <h2 className="section-title">🎓 Enrollment Choices</h2>
+            <section className="form-section">
+              <h2 className="section-title">Program Selection</h2>
               
-              <div className="choices-grid">
-                <div className="choice-card">
-                  <h4>Academic Level *</h4>
-                  <div className="radio-group">
-                    {['Undergraduate', 'Graduate'].map(opt => (
-                      <label key={opt} className={`radio-btn ${formData.level === opt.toLowerCase() ? 'selected' : ''}`}>
-                        <input type="radio" name="level" value={opt.toLowerCase()} checked={formData.level === opt.toLowerCase()} onChange={handleChange} required />
-                        <span className="radio-check"></span>
-                        <span className="radio-label">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
+              {/* ACADEMIC LEVEL WITH DESELECTION */}
+              <div className="selection-block">
+                <div className="selection-header">
+                  <label>Academic Level <span className="required">*</span></label>
+                  {formData.level && (
+                    <button type="button" className="clear-btn" onClick={() => clearSelection('level')}>
+                      Clear Selection
+                    </button>
+                  )}
                 </div>
-
-                <div className="choice-card">
-                  <h4>Semester *</h4>
-                  <div className="radio-group">
-                    {['First', 'Second', 'Summer'].map(opt => (
-                      <label key={opt} className={`radio-btn ${formData.semester === opt.toLowerCase() ? 'selected' : ''}`}>
-                        <input type="radio" name="semester" value={opt.toLowerCase()} checked={formData.semester === opt.toLowerCase()} onChange={handleChange} required />
-                        <span className="radio-check"></span>
-                        <span className="radio-label">{opt} Semester</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="choice-card">
-                  <h4>Campus *</h4>
-                  <div className="radio-group">
-                    {['Manila', 'Quezon City'].map(opt => (
-                      <label key={opt} className={`radio-btn ${formData.campus === opt.toLowerCase().replace(' ', '-') ? 'selected' : ''}`}>
-                        <input type="radio" name="campus" value={opt.toLowerCase().replace(' ', '-')} checked={formData.campus === opt.toLowerCase().replace(' ', '-')} onChange={handleChange} required />
-                        <span className="radio-check"></span>
-                        <span className="radio-label">{opt}</span>
-                      </label>
-                    ))}
-                  </div>
+                <div className="radio-grid">
+                  {['undergraduate', 'graduate'].map((opt) => (
+                    <label key={opt} className={`radio-card ${formData.level === opt ? 'selected' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="level" 
+                        value={opt}
+                        checked={formData.level === opt}
+                        onChange={handleChange}
+                      />
+                      <span className="radio-indicator"></span>
+                      <span className="radio-text">{opt === 'undergraduate' ? 'Undergraduate' : 'Graduate'}</span>
+                    </label>
+                  ))}
                 </div>
               </div>
 
-              <div className="form-grid two-cols">
-                <div className={`input-group select-group ${touched.department && errors.department ? 'error' : ''}`}>
-                  <select name="department" value={formData.department} onChange={handleChange} onBlur={handleBlur} required>
-                    <option value=""></option>
-                    <option value="cea">College of Engineering & Architecture</option>
-                    <option value="ccs">College of Computer Studies</option>
-                    <option value="cbe">College of Business Education</option>
-                    <option value="arts">College of Arts</option>
-                  </select>
-                  <label className="static-label">College Department *</label>
+              {/* SEMESTER WITH DESELECTION */}
+              <div className="selection-block">
+                <div className="selection-header">
+                  <label>Semester <span className="required">*</span></label>
+                  {formData.semester && (
+                    <button type="button" className="clear-btn" onClick={() => clearSelection('semester')}>
+                      Clear Selection
+                    </button>
+                  )}
                 </div>
-
-                <div className={`input-group select-group ${touched.program && errors.program ? 'error' : ''}`}>
-                  <select name="program" value={formData.program} onChange={handleChange} onBlur={handleBlur} required disabled={!formData.department}>
-                    <option value="">{formData.department ? 'Select Program' : 'Select Department First'}</option>
-                    {formData.department && departments[formData.department]?.map(p => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                  <label className="static-label">Degree Program *</label>
+                <div className="radio-grid three-options">
+                  {['first', 'second', 'summer'].map((opt) => (
+                    <label key={opt} className={`radio-card ${formData.semester === opt ? 'selected' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="semester" 
+                        value={opt}
+                        checked={formData.semester === opt}
+                        onChange={handleChange}
+                      />
+                      <span className="radio-indicator"></span>
+                      <span className="radio-text">
+                        {opt === 'first' ? 'First Semester' : opt === 'second' ? 'Second Semester' : 'Summer'}
+                      </span>
+                    </label>
+                  ))}
                 </div>
               </div>
-            </div>
+
+              {/* CAMPUS WITH DESELECTION */}
+              <div className="selection-block">
+                <div className="selection-header">
+                  <label>Campus <span className="required">*</span></label>
+                  {formData.campus && (
+                    <button type="button" className="clear-btn" onClick={() => clearSelection('campus')}>
+                      Clear Selection
+                    </button>
+                  )}
+                </div>
+                <div className="radio-grid">
+                  {['manila', 'quezon-city'].map((opt) => (
+                    <label key={opt} className={`radio-card ${formData.campus === opt ? 'selected' : ''}`}>
+                      <input 
+                        type="radio" 
+                        name="campus" 
+                        value={opt}
+                        checked={formData.campus === opt}
+                        onChange={handleChange}
+                      />
+                      <span className="radio-indicator"></span>
+                      <span className="radio-text">{opt === 'manila' ? 'Manila' : 'Quezon City'}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* DEPARTMENT & PROGRAM */}
+              {formData.level === 'undergraduate' && (
+                <div className="form-row two-cols">
+                  <div className={`field-group ${touched.department && errors.department ? 'error' : ''}`}>
+                    <label>College Department <span className="required">*</span></label>
+                    <select 
+                      name="department" 
+                      value={formData.department}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      <option value="">Select Department</option>
+                      <option value="cea">College of Engineering & Architecture</option>
+                      <option value="ccs">College of Computer Studies</option>
+                      <option value="cbe">College of Business Education</option>
+                      <option value="arts">College of Arts</option>
+                    </select>
+                  </div>
+
+                  <div className={`field-group ${touched.program && errors.program ? 'error' : ''}`}>
+                    <label>Degree Program <span className="required">*</span></label>
+                    <select 
+                      name="program" 
+                      value={formData.program}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      disabled={!formData.department}
+                    >
+                      <option value="">
+                        {formData.department ? 'Select Program' : 'Select Department First'}
+                      </option>
+                      {formData.department && programsData.undergraduate[formData.department]?.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
+              {formData.level === 'graduate' && (
+                <div className="form-row two-cols">
+                  <div className={`field-group ${touched.department && errors.department ? 'error' : ''}`}>
+                    <label>Degree Type <span className="required">*</span></label>
+                    <select 
+                      name="department" 
+                      value={formData.department}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                    >
+                      <option value="">Select Type</option>
+                      <option value="masters">Master's Degree</option>
+                      <option value="doctorate">Doctorate Degree</option>
+                    </select>
+                  </div>
+
+                  <div className={`field-group ${touched.program && errors.program ? 'error' : ''}`}>
+                    <label>Program <span className="required">*</span></label>
+                    <select 
+                      name="program" 
+                      value={formData.program}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      disabled={!formData.department}
+                    >
+                      <option value="">
+                        {formData.department ? 'Select Program' : 'Select Degree Type First'}
+                      </option>
+                      {formData.department && programsData.graduate[formData.department]?.map(p => (
+                        <option key={p} value={p}>{p}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+            </section>
           )}
 
-          {/* NAVIGATION BUTTONS */}
-          <div className="form-navigation">
+          {/* NAVIGATION */}
+          <div className="form-actions">
             {currentStep > 1 && (
-              <button type="button" onClick={prevStep} className="btn-secondary">
-                ← Previous
+              <button type="button" className="btn-secondary" onClick={prevStep}>
+                ← Back
               </button>
             )}
             
             {currentStep < 4 ? (
-              <button type="button" onClick={nextStep} className="btn-primary">
-                Next Step →
+              <button type="button" className="btn-primary" onClick={nextStep}>
+                Continue →
               </button>
             ) : (
               <button type="submit" className={`btn-submit ${isSubmitting ? 'loading' : ''}`} disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Complete Registration 🎓'}
+                {isSubmitting ? 'Processing...' : 'Submit Application'}
               </button>
             )}
           </div>
         </form>
+      </main>
 
-        <footer className="glass-footer">
-          <p>© 2024 ADEi University • Technological Institute of the Philippines</p>
-          <p className="security-note">🔒 Secure SSL Encryption • Data Privacy Protected</p>
-        </footer>
-      </div>
+      {/* FOOTER */}
+      <footer className="portal-footer">
+        <p>© 2024 Technological Institute of the Philippines • All Rights Reserved</p>
+        <p className="footer-note">This is an official document. Please ensure all information is accurate.</p>
+      </footer>
     </div>
   );
 }
