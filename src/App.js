@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
+
 // PHILIPPINE CITIES AND PROVINCES DATA
 const philippineLocations = {
   'Metro Manila': ['Manila', 'Quezon City', 'Caloocan', 'Las Piñas', 'Makati', 'Malabon', 'Mandaluyong', 'Marikina', 'Muntinlupa', 'Navotas', 'Parañaque', 'Pasay', 'Pasig', 'Pateros', 'San Juan', 'Taguig', 'Valenzuela'],
@@ -20,37 +21,33 @@ const philippineLocations = {
   'Ilocos Norte': ['Laoag', 'Batac', 'San Nicolas'],
   'Ilocos Sur': ['Vigan', 'Candon', 'Bantay'],
   'Pangasinan': ['Dagupan', 'San Carlos', 'Urdaneta', 'Alaminos', 'Lingayen'],
-  'Quezon': ['Lucena', 'Tayabas', 'Antipolo', 'Candelaria', 'Sariaya'],
+  'Quezon': ['Lucena', 'Tayabas', 'Candelaria', 'Sariaya'],
   'Leyte': ['Tacloban', 'Ormoc', 'Baybay', 'Palo'],
   'Negros Oriental': ['Dumaguete', 'Bais', 'Bayawan', 'Guihulngan'],
   'Bohol': ['Tagbilaran', 'Tubigon', 'Carmen', 'Loon'],
-  'Camarines Sur': ['Naga', 'Iriga', 'Pili', 'Legazpi'],
+  'Camarines Sur': ['Naga', 'Iriga', 'Pili'],
   'Albay': ['Legazpi', 'Ligao', 'Tabaco', 'Guinobatan']
 };
+
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   
   const [formData, setFormData] = useState({
-    // Personal
     firstName: '', middleName: '', lastName: '', suffix: '',
     dateOfBirth: '', gender: '', nationality: '', religion: '',
-    // Contact
     email: '', mobile: '', landline: '',
     street: '', barangay: '', city: '', province: '', zipCode: '',
-    // Academic
     gsName: '', gsYear: '', gsAddress: '',
     jhsName: '', jhsYear: '', jhsAddress: '',
     shsName: '', shsYear: '', shsAverage: '', shsAddress: '',
-    // Enrollment
     level: '', semester: '', campus: '', department: '', program: ''
   });
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  // COMPLETE PROGRAM DATA INCLUDING GRADUATE
   const programsData = {
     undergraduate: {
       cea: ['BS Architecture', 'BS Chemical Engineering', 'BS Civil Engineering', 
@@ -87,24 +84,25 @@ function App() {
   };
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
-  
-  // STRICT VALIDATION FOR MOBILE - NUMBERS ONLY, 11 digits
-  if (name === 'mobile') {
-    const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 11);
-    setFormData(prev => ({ ...prev, [name]: numbersOnly }));
-  }
-  // STRICT VALIDATION FOR LANDLINE - NUMBERS ONLY, max 10 digits
-  else if (name === 'landline') {
-    const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
-    setFormData(prev => ({ ...prev, [name]: numbersOnly }));
-  }
-  else {
-    setFormData(prev => ({ ...prev, [name]: value }));
-  }
-  
-  if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
-};
+    const { name, value } = e.target;
+    
+    if (name === 'mobile') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 11);
+      setFormData(prev => ({ ...prev, [name]: numbersOnly }));
+    }
+    else if (name === 'landline') {
+      const numbersOnly = value.replace(/[^0-9]/g, '').slice(0, 10);
+      setFormData(prev => ({ ...prev, [name]: numbersOnly }));
+    }
+    else if (name === 'province') {
+      setFormData(prev => ({ ...prev, [name]: value, city: '' }));
+    }
+    else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
+    
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
 
   const handleBlur = (e) => {
     const { name } = e.target;
@@ -114,8 +112,6 @@ function App() {
 
   const validateField = (name, value) => {
     let error = '';
-    
-    // Required fields validation
     const requiredFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'nationality',
                    'email', 'mobile', 'street', 'barangay', 'city', 'province', 'zipCode',
                    'gsName', 'gsYear', 'gsAddress', 'jhsName', 'jhsYear', 'jhsAddress',
@@ -126,24 +122,18 @@ function App() {
       error = 'This field is required';
     }
     
-    // Email validation
     if (name === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       error = 'Please enter a valid email';
     }
     
-    // STRICT MOBILE VALIDATION - exactly 11 digits, starts with 09
-    if (name === 'mobile' && value) {
-      if (!/^09\d{9}$/.test(value)) {
-        error = 'Must be 11 digits starting with 09 (e.g., 09123456789)';
-      }
+    if (name === 'mobile' && value && !/^09\d{9}$/.test(value)) {
+      error = 'Must be 11 digits starting with 09';
     }
     
-    // Zip code validation - exactly 4 digits
     if (name === 'zipCode' && value && !/^\d{4}$/.test(value)) {
       error = 'Must be exactly 4 digits';
     }
     
-    // Grade average validation
     if (name === 'shsAverage' && value && (value < 75 || value > 100)) {
       error = 'Must be between 75-100';
     }
@@ -180,7 +170,6 @@ function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // CLEAR SELECTION FUNCTION
   const clearSelection = (field) => {
     setFormData(prev => ({ ...prev, [field]: '' }));
     if (field === 'level') {
@@ -228,7 +217,6 @@ function App() {
 
   return (
     <div className="university-portal">
-      {/* HEADER */}
       <header className="portal-header">
         <div className="header-content">
           <div className="university-brand">
@@ -245,7 +233,6 @@ function App() {
         </div>
       </header>
 
-      {/* PROGRESS BAR */}
       <div className="progress-container">
         <div className="progress-bar">
           <div className="progress-fill" style={{ width: `${getProgress()}%` }}></div>
@@ -253,7 +240,6 @@ function App() {
         <span className="progress-text">{getProgress()}% Complete</span>
       </div>
 
-      {/* STEP NAVIGATION */}
       <div className="step-nav">
         {[
           { num: 1, label: 'Personal Info' },
@@ -272,11 +258,9 @@ function App() {
         ))}
       </div>
 
-      {/* MAIN FORM */}
       <main className="form-container">
         <form onSubmit={handleSubmit}>
           
-          {/* STEP 1: PERSONAL INFORMATION */}
           {currentStep === 1 && (
             <section className="form-section">
               <h2 className="section-title">Personal Information</h2>
@@ -397,7 +381,6 @@ function App() {
             </section>
           )}
 
-          {/* STEP 2: CONTACT DETAILS */}
           {currentStep === 2 && (
             <section className="form-section">
               <h2 className="section-title">Contact Details</h2>
@@ -443,73 +426,74 @@ function App() {
                   />
                   <small className="field-hint">Max 10 digits, numbers only</small>
                 </div>
+              </div>
 
               <h3 className="subsection-title">Home Address</h3>
               
               <div className="form-row two-cols">
-  <div className={`field-group ${touched.province && errors.province ? 'error' : ''}`}>
-    <label>Province <span className="required">*</span></label>
-    <select 
-      name="province" 
-      value={formData.province}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      required
-    >
-      <option value="">Select Province</option>
-      {Object.keys(philippineLocations).map(prov => (
-        <option key={prov} value={prov}>{prov}</option>
-      ))}
-    </select>
-    {touched.province && errors.province && <span className="error-text">{errors.province}</span>}
-  </div>
-
-  <div className={`field-group ${touched.city && errors.city ? 'error' : ''}`}>
-    <label>City <span className="required">*</span></label>
-    <select 
-      name="city" 
-      value={formData.city}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      required
-      disabled={!formData.province}
-    >
-      <option value="">
-        {formData.province ? 'Select City' : 'Select Province First'}
-      </option>
-      {formData.province && philippineLocations[formData.province]?.map(city => (
-        <option key={city} value={city}>{city}</option>
-      ))}
-    </select>
-    {touched.city && errors.city && <span className="error-text">{errors.city}</span>}
-  </div>
-</div>
-
-              <div className="form-row three-cols">
-                <div className={`field-group ${touched.city && errors.city ? 'error' : ''}`}>
-                  <label>City <span className="required">*</span></label>
+                <div className={`field-group ${touched.street && errors.street ? 'error' : ''}`}>
+                  <label>Street <span className="required">*</span></label>
                   <input 
                     type="text" 
-                    name="city" 
-                    value={formData.city}
+                    name="street" 
+                    value={formData.street}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="Manila"
+                    placeholder="123 Main Street"
                   />
-                  {touched.city && errors.city && <span className="error-text">{errors.city}</span>}
+                  {touched.street && errors.street && <span className="error-text">{errors.street}</span>}
                 </div>
 
-                <div className={`field-group ${touched.province && errors.province ? 'error' : ''}`}>
-                  <label>Province <span className="required">*</span></label>
+                <div className={`field-group ${touched.barangay && errors.barangay ? 'error' : ''}`}>
+                  <label>Barangay <span className="required">*</span></label>
                   <input 
                     type="text" 
+                    name="barangay" 
+                    value={formData.barangay}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    placeholder="Barangay 143"
+                  />
+                  {touched.barangay && errors.barangay && <span className="error-text">{errors.barangay}</span>}
+                </div>
+              </div>
+
+              <div className="form-row three-cols">
+                <div className={`field-group ${touched.province && errors.province ? 'error' : ''}`}>
+                  <label>Province <span className="required">*</span></label>
+                  <select 
                     name="province" 
                     value={formData.province}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    placeholder="Metro Manila"
-                  />
+                    required
+                  >
+                    <option value="">Select Province</option>
+                    {Object.keys(philippineLocations).map(prov => (
+                      <option key={prov} value={prov}>{prov}</option>
+                    ))}
+                  </select>
                   {touched.province && errors.province && <span className="error-text">{errors.province}</span>}
+                </div>
+
+                <div className={`field-group ${touched.city && errors.city ? 'error' : ''}`}>
+                  <label>City <span className="required">*</span></label>
+                  <select 
+                    name="city" 
+                    value={formData.city}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    required
+                    disabled={!formData.province}
+                  >
+                    <option value="">
+                      {formData.province ? 'Select City' : 'Select Province First'}
+                    </option>
+                    {formData.province && philippineLocations[formData.province]?.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                  {touched.city && errors.city && <span className="error-text">{errors.city}</span>}
                 </div>
 
                 <div className={`field-group ${touched.zipCode && errors.zipCode ? 'error' : ''}`}>
@@ -529,7 +513,6 @@ function App() {
             </section>
           )}
 
-          {/* STEP 3: ACADEMIC HISTORY */}
           {currentStep === 3 && (
             <section className="form-section">
               <h2 className="section-title">Academic History</h2>
@@ -600,12 +583,10 @@ function App() {
             </section>
           )}
 
-          {/* STEP 4: ENROLLMENT CHOICES */}
           {currentStep === 4 && (
             <section className="form-section">
               <h2 className="section-title">Program Selection</h2>
               
-              {/* ACADEMIC LEVEL WITH DESELECTION */}
               <div className="selection-block">
                 <div className="selection-header">
                   <label>Academic Level <span className="required">*</span></label>
@@ -632,7 +613,6 @@ function App() {
                 </div>
               </div>
 
-              {/* SEMESTER WITH DESELECTION */}
               <div className="selection-block">
                 <div className="selection-header">
                   <label>Semester <span className="required">*</span></label>
@@ -661,7 +641,6 @@ function App() {
                 </div>
               </div>
 
-              {/* CAMPUS WITH DESELECTION */}
               <div className="selection-block">
                 <div className="selection-header">
                   <label>Campus <span className="required">*</span></label>
@@ -688,7 +667,6 @@ function App() {
                 </div>
               </div>
 
-              {/* DEPARTMENT & PROGRAM */}
               {formData.level === 'undergraduate' && (
                 <div className="form-row two-cols">
                   <div className={`field-group ${touched.department && errors.department ? 'error' : ''}`}>
@@ -765,7 +743,6 @@ function App() {
             </section>
           )}
 
-          {/* NAVIGATION */}
           <div className="form-actions">
             {currentStep > 1 && (
               <button type="button" className="btn-secondary" onClick={prevStep}>
@@ -786,7 +763,6 @@ function App() {
         </form>
       </main>
 
-      {/* FOOTER */}
       <footer className="portal-footer">
         <p>© 2024 Technological Institute of the Philippines • All Rights Reserved</p>
         <p className="footer-note">This is an official document. Please ensure all information is accurate.</p>
