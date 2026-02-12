@@ -218,6 +218,7 @@ function App() {
   return (
     <div className="university-portal">
       <header className="portal-header">
+        
         <div className="header-content">
           <div className="university-brand">
             <div className="seal">T.I.P.</div>
