@@ -221,14 +221,26 @@ function App() {
         
         <div className="header-content">
           <div className="university-brand">
-            <div className="seal">T.I.P.</div>
+            <img 
+  src="https://upload.wikimedia.org/wikipedia/commons/a/a1/T.I.P._Logo_-_RGB_-_Colored.png" 
+  alt="T.I.P. Logo" 
+  style={{
+    width: '60px', 
+    height: '60px', 
+    objectFit: 'contain', 
+    background: 'white', 
+    borderRadius: '50%', 
+    padding: '3px',
+    border: '2px solid white'
+  }}
+/>
             <div className="brand-text">
               <h1>TECHNOLOGICAL INSTITUTE OF THE PHILIPPINES</h1>
               <p>Office of the University Registrar</p>
             </div>
           </div>
           <div className="header-meta">
-            <span className="academic-year">A.Y. 2024-2025</span>
+            <span className="academic-year">A.Y. 2025-2026</span>
             <span className="term">Enrollment Period</span>
           </div>
         </div>
@@ -368,17 +380,28 @@ function App() {
               </div>
 
               <div className="form-row">
-                <div className="field-group">
-                  <label>Religion</label>
-                  <input 
-                    type="text" 
-                    name="religion" 
-                    value={formData.religion}
-                    onChange={handleChange}
-                    placeholder="Roman Catholic, Islam, Protestant, etc."
-                  />
-                </div>
-              </div>
+  <div className="field-group">
+    <label>Religion</label>
+    <select 
+      name="religion" 
+      value={formData.religion}
+      onChange={handleChange}
+    >
+      <option value="">Select Religion</option>
+      <option value="Roman Catholic">Roman Catholic</option>
+      <option value="Islam">Islam</option>
+      <option value="Protestant">Protestant</option>
+      <option value="Iglesia ni Cristo">Iglesia ni Cristo</option>
+      <option value="Born Again">Born Again</option>
+      <option value="Seventh-Day Adventist">Seventh-Day Adventist</option>
+      <option value="Jehovah's Witness">Jehovah's Witness</option>
+      <option value="Mormon">Mormon</option>
+      <option value="Buddhist">Buddhist</option>
+      <option value="Hindu">Hindu</option>
+      <option value="Others">Others</option>
+    </select>
+  </div>
+</div>
             </section>
           )}
 
@@ -765,8 +788,8 @@ function App() {
       </main>
 
       <footer className="portal-footer">
-        <p>© 2024 Technological Institute of the Philippines • All Rights Reserved</p>
-        <p className="footer-note">This is an official document. Please ensure all information is accurate.</p>
+        <p>© 2025 Technological Institute of the Philippines • All Rights Reserved</p>
+        <p className="footer-note">Official Website of Technological Institute of the Philippines</p>
       </footer>
     </div>
   );
